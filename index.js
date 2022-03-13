@@ -938,16 +938,13 @@ async function events(ctx) {
                 } else {
                     for (let j = 0; j < events.length; j++) {
                         const e = events[j];
-                        if ( ! e.event ) continue;
-                        // console.log(e);
-                        // if (e.event != 'Deposit') continue;
+                        if (e.event != 'Deposit') continue;
                         const user = e.returnValues;
                         if( ! balances[user.user] )
                             balances[user.user] = 0;
                         const amount = parseInt(user.amount)/1e18;
                         balances[user.user] += amount;
                         console.log('\t', user.user, amount);
-
                         bytx.push(`${e.transactionHash},${user.user},${amount}`)
 
                     }
@@ -965,10 +962,10 @@ async function scanBlockchain(){
 
 async function generateBalance(){
     console.log('loading bytx.txt...');
-    const bytx = fs.readFileSync('./bytx.txt', 'utf-8').split('\n');
+    const bytx_read = fs.readFileSync('./bytx.txt', 'utf-8').split('\n');
     let balancesArray = [];
-    for( let i in bytx ){
-        const id = bytx[i].split(',')[1];
+    for( let i in bytx_read ){
+        const id = bytx_read[i].split(',')[1];
         if( balances[id] ) continue;
         balances[id] = true;
         balancesArray.push(id);
@@ -976,18 +973,20 @@ async function generateBalance(){
     let txt = [];
     const balancesTotal = balancesArray.length;
     console.log('building balances... total '+balancesTotal);
-    const address = balancesArray[0];
-    const balance1 = await balance(address,ctx1);
-    const info = address+","+balance1;
-    txt.push( info );
-    console.log(i+' of '+balancesTotal+') '+info);
+    for( let i = 0 ; i < balancesTotal; i ++ ){
+        const address = balancesArray[i];
+        const balance1 = await balance(address,ctx1);
+        const info = address+","+balance1;
+        txt.push( info );
+    }
     console.log('writing addresses.txt');
     fs.writeFileSync('./addresses.txt', txt.join('\n'));
     console.log('done.')
 }
+
 async function balance(user, ctx){
     const info4 = await ctx.methods.balanceOf(user).call();
-    return parseFloat( web3.utils.fromWei( info4.amount.toString() ) );
+    return parseFloat( web3.utils.fromWei( info4.toString() ) );
 }
 
 
