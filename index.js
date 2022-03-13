@@ -971,17 +971,20 @@ async function generateBalance(){
         if( balances[id] ){
             balancesArray[id] = +balancesArray[id] + +bal
         }else{
-        balancesArray[id] = Number(bal);
+        balancesArray[id] = Number(bal).toFixed(18);
         }
         balances[id] = true;
         console.log("🚀 ~ file: index.js ~ line 974 ~ generateBalance ~ balancesArray", balancesArray)
     }
     let txt = [];
+    let total = 0;
     for (let i in balancesArray){
+        total = +total + +balancesArray[i]
         txt.push(i + "," + balancesArray[i])
         console.log("🚀 ~ file: index.js ~ line 982 ~ generateBalance ~ balancesArray[i]", balancesArray[i])
         console.log("🚀 ~ file: index.js ~ line 982 ~ generateBalance ~ i", i)
     }
+    txt.push("total," + total);
     console.log('writing addresses.txt');
     fs.writeFileSync('./addresses.txt', txt.join('\n'));
     console.log('done.')
