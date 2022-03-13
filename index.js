@@ -963,21 +963,24 @@ async function scanBlockchain(){
 async function generateBalance(){
     console.log('loading bytx.txt...');
     const bytx_read = fs.readFileSync('./bytx.txt', 'utf-8').split('\n');
-    let balancesArray = [];
+    let balancesArray = {};
     for( let i in bytx_read ){
         const id = bytx_read[i].split(',')[1];
-        if( balances[id] ) continue;
+        const bal = bytx_read[i].split(',')[2]
+        console.log("🚀 ~ file: index.js ~ line 969 ~ generateBalance ~ id", id)
+        if( balances[id] ){
+            balancesArray[id] = +balancesArray[id] + +bal
+        }else{
+        balancesArray[id] = Number(bal);
+        }
         balances[id] = true;
-        balancesArray.push(id);
+        console.log("🚀 ~ file: index.js ~ line 974 ~ generateBalance ~ balancesArray", balancesArray)
     }
     let txt = [];
-    const balancesTotal = balancesArray.length;
-    console.log('building balances... total '+balancesTotal);
-    for( let i = 0 ; i < balancesTotal; i ++ ){
-        const address = balancesArray[i];
-        const balance1 = await balance(address,ctx1);
-        const info = address+","+balance1;
-        txt.push( info );
+    for (let i in balancesArray){
+        txt.push(i + "," + balancesArray[i])
+        console.log("🚀 ~ file: index.js ~ line 982 ~ generateBalance ~ balancesArray[i]", balancesArray[i])
+        console.log("🚀 ~ file: index.js ~ line 982 ~ generateBalance ~ i", i)
     }
     console.log('writing addresses.txt');
     fs.writeFileSync('./addresses.txt', txt.join('\n'));
